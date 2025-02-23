@@ -33,6 +33,13 @@
       "default": "production"
     },
     {
+      "name": "userUuid",
+      "title": "User UUID",
+      "description": "UUID of a user",
+      "type": "textfield",
+      "required": true
+    },
+    {
       "name": "apiKey",
       "title": "API Key",
       "description": "GateHub API Key value",

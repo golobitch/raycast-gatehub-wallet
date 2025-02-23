@@ -6,10 +6,12 @@ export class GateHubAPI {
   private readonly key: string;
   private readonly secret: string;
   private readonly environment: string;
+  private readonly userUuid: string;
 
-  constructor(key: string, secret: string, environment: string) {
+  constructor(key: string, secret: string, environment: string, userUuid: string) {
     this.key = key;
     this.secret = secret;
+    this.userUuid = userUuid;
     this.environment = environment;
   }
 
@@ -51,10 +53,6 @@ export class GateHubAPI {
     return fetch(url, obj)
   }
 
-  public async getUser() {
-    return this.call("auth/v1/user", "GET");
-  }
-
   private mapTypeToString(type: number): string {
     switch (type) {
       case 0:
@@ -74,14 +72,6 @@ export class GateHubAPI {
     }
   }
 
-  public async createWallet(userUuid: string, name: string) {
-    const body: URLSearchParams = new URLSearchParams()
-    body.append('name', name)
-    body.append('type', "0")
-    const response = await this.call(`core/v1/users/d7777a5a-84a2-46e1-ba35-1c099751658b/wallets`, 'POST', body)
-    return await response.json()
-  }
-
   public async getBalance(wallet: string) {
     const response = await this.call(`core/v1/wallets/${wallet}/balances`, "POST");
     const data = await response.json();
@@ -89,10 +79,8 @@ export class GateHubAPI {
   }
 
   public async getWallets() {
-    const user = await this.getUser()
-    console.log('USER', await user.json())
     const response = await this.call(
-      "core/v1/users/d7777a5a-84a2-46e1-ba35-1c099751658b",
+      `core/v1/users/${this.userUuid}`,
       "GET",
     );
     const data: any = await response.json();
@@ -109,8 +97,9 @@ export class GateHubAPI {
 interface Preferences {
   apiKey: string;
   apiSecret: string;
+  userUuid: string;
   environment: string;
 }
 
 const preferences = getPreferenceValues<Preferences>();
-export default new GateHubAPI(preferences.apiKey, preferences.apiSecret, preferences.environment);
+export default new GateHubAPI(preferences.apiKey, preferences.apiSecret, preferences.environment, preferences.userUuid);
